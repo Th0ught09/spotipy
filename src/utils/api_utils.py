@@ -5,25 +5,23 @@ from requests.auth import HTTPBasicAuth
 
 def get_key():
     try:
-        return os.environ["KEY"][1:-1]
+        return os.getenv("KEY")
     except:
         print("environment variable not found... sourcing respective file")
-        subprocess.Popen("source ../../utils.env")
-        return os.environ["KEY"][1:-1]
+        subprocess.Popen("source ./utils.env")
+        return os.getenv("KEY")
 
 def get_song(song_id):
-    header = {"Accept": "application/json"}
-    key = get_key()
-    print(key)
-    auth = HTTPBasicAuth(
-        "apikey",
-        f"{key}",
+    key = get_key().strip('"')
+    bearer = "Bearer " + key
+    headers = {"Authorization": bearer}
+    print(headers)
+    request = requests.get(
+        url="https://api.spotify.com/v1/artists/4Z8W4fKeB5YxbusRsdQVPb", headers=headers
     )
-    outcome = requests.get(
-        auth=auth, headers=header, url=f"https://api.spotify.com/v1/tracks/{song_id}"
-    )
-    print(outcome.json)
-    pass
+    print(request.status_code)
+    print(request.json())
+    return request
 
 
 get_song("11dFghVXANMlKmJXsNCbNl")
